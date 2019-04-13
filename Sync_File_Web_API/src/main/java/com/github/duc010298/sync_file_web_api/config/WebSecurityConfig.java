@@ -2,6 +2,7 @@ package com.github.duc010298.sync_file_web_api.config;
 
 import com.github.duc010298.sync_file_web_api.filter.JWTAuthenticationFilter;
 import com.github.duc010298.sync_file_web_api.filter.JWTLoginFilter;
+import com.github.duc010298.sync_file_web_api.repository.AppUserRepository;
 import com.github.duc010298.sync_file_web_api.services.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -20,10 +21,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private UserDetailsServiceImpl userDetailsService;
+    private AppUserRepository appUserRepository;
 
     @Autowired
-    public WebSecurityConfig(UserDetailsServiceImpl userDetailsService) {
+    public WebSecurityConfig(UserDetailsServiceImpl userDetailsService, AppUserRepository appUserRepository) {
         this.userDetailsService = userDetailsService;
+        this.appUserRepository = appUserRepository;
     }
 
     @Bean
@@ -47,7 +50,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(new JWTLoginFilter("/login", authenticationManager()), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new JWTAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(tokenAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+    }
+    
+    private JWTAuthenticationFilter tokenAuthorizationFilter()
+    {
+        return new JWTAuthenticationFilter(appUserRepository);
     }
 }
 

@@ -15,7 +15,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 public class TokenAuthenticationService {
 	static final long EXPIRATIONTIME = 864_000_000; // 10 days
     
-    static final String SECRET = "01021998";
+    static final String SECRET = getRandomString();
      
     static final String TOKEN_PREFIX = "Bearer";
      
@@ -31,11 +31,20 @@ public class TokenAuthenticationService {
     public static Authentication getAuthentication(HttpServletRequest request) {
         String token = request.getHeader(HEADER_STRING);
         if (token != null) {
-            // parse the token.
             String user = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token.replace(TOKEN_PREFIX, "")).getBody().getSubject();
- 
             return user != null ? new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList()) : null;
         }
         return null;
+    }
+    
+    private static String getRandomString() {
+    	int n = 8;
+        String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvxyz"; 
+        StringBuilder sb = new StringBuilder(n); 
+        for (int i = 0; i < n; i++) { 
+            int index = (int)(AlphaNumericString.length() * Math.random()); 
+            sb.append(AlphaNumericString.charAt(index)); 
+        } 
+    	return sb.toString();
     }
 }

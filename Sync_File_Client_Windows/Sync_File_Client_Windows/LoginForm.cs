@@ -56,13 +56,12 @@ namespace Sync_File_Client_Windows
 
         private void CreateAuthenticationInfoFile(string token)
         {
-            string ecryptionString = EncryptionHelper.Encrypt(token);
             try
             {
                 using (FileStream fs = new FileStream(Config.AuthenticationInfoFilePath, FileMode.Create))
                 {
                     BinaryFormatter formatter = new BinaryFormatter();
-                    formatter.Serialize(fs, ecryptionString);
+                    formatter.Serialize(fs, token);
                 }
             }
             catch (Exception)

@@ -71,8 +71,7 @@ namespace Sync_File_Client_Windows
                 using (FileStream serializationStream = new FileStream(Config.AuthenticationInfoFilePath, FileMode.Open))
                 {
                     BinaryFormatter formatter = new BinaryFormatter();
-                    string tokenEncrypted = (string)formatter.Deserialize(serializationStream);
-                    token = EncryptionHelper.Decrypt(tokenEncrypted);
+                    token = (string)formatter.Deserialize(serializationStream);
                 }
             }
             catch (Exception)
