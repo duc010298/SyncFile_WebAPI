@@ -50,6 +50,7 @@ namespace Sync_File_Client_Windows
                 MessageBox.Show("Failed to send request, check your connection and try again", "Take an error!", MessageBoxButtons.OK, MessageBoxIcon.Hand);
                 return;
             }
+            Config.Client.DefaultRequestHeaders.Add("Authorization", token);
             CreateAuthenticationInfoFile(token);
             //Start program here
         }
