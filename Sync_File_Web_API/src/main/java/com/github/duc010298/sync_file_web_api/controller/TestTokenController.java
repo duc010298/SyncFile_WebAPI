@@ -6,13 +6,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-@RequestMapping("/abc")
-public class LoginController {
+@RequestMapping("/TestToken")
+public class TestTokenController {
 	
 	@GetMapping
 	@ResponseBody
-	public String abc() {
-		return "Demo login page";
+	public String TestToken() {
+		return "Success";
 	}
-
 }
