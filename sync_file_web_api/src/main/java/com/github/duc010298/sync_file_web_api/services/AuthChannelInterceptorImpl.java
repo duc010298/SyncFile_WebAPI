@@ -23,45 +23,44 @@ import com.github.duc010298.sync_file_web_api.repository.AppUserRepository;
 
 @Component
 public class AuthChannelInterceptorImpl implements ChannelInterceptor {
-	
+
 	private final AppUserRepository appUserRepository;
 	private final AppRoleRepository appRoleRepository;
-	
+
 	@Autowired
-	public AuthChannelInterceptorImpl(AppUserRepository appUserRepository, AppRoleRepository appRoleRepository) 
-    {
-        this.appUserRepository = appUserRepository;
-        this.appRoleRepository = appRoleRepository;
-    }
+	public AuthChannelInterceptorImpl(AppUserRepository appUserRepository, AppRoleRepository appRoleRepository) {
+		this.appUserRepository = appUserRepository;
+		this.appRoleRepository = appRoleRepository;
+	}
 
 	@Override
-    public Message<?> preSend(final Message<?> message, final MessageChannel channel) throws AuthenticationException {
-        final StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+	public Message<?> preSend(final Message<?> message, final MessageChannel channel) throws AuthenticationException {
+		final StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
-        if (StompCommand.CONNECT == accessor.getCommand()) {
-        	UsernamePasswordAuthenticationToken authentication = null;
-            String token = accessor.getFirstNativeHeader("Authorization");
-            
-            AppUser userInfoInToken = TokenAuthenticationService.getUserInfoFromToken(token);
-            if (userInfoInToken == null)
-    			throw new UsernameNotFoundException("User not found.");
-            
-    		AppUser userInfoOnDB = appUserRepository.findByUserName(userInfoInToken.getUserName());
-    		if (userInfoOnDB == null)
-    			throw new UsernameNotFoundException("User not found.");
-    		if(userInfoOnDB.getTokenActiveAfter().before(userInfoInToken.getTokenActiveAfter())) {
-        		List<String> roleNames = this.appRoleRepository.getRoleNames(userInfoOnDB.getUserId());
-        		List<GrantedAuthority> grantList = new ArrayList<>();
-        		if (roleNames != null) {
-        			for (String role : roleNames) {
-        				GrantedAuthority authority = new SimpleGrantedAuthority(role);
-        				grantList.add(authority);
-        			}
-        		}
-        		authentication = new UsernamePasswordAuthenticationToken(userInfoInToken.getUserName(), null, grantList);
-        	}
-            accessor.setUser(authentication);
-        }
-        return message;
-    }
+		if (StompCommand.CONNECT == accessor.getCommand()) {
+			String token = accessor.getFirstNativeHeader("Authorization");
+
+			AppUser userInfoInToken = TokenAuthenticationService.getUserInfoFromToken(token);
+			if (userInfoInToken == null)
+				throw new UsernameNotFoundException("User not found.");
+
+			AppUser userInfoOnDB = appUserRepository.findByUserName(userInfoInToken.getUserName());
+			if (userInfoOnDB == null)
+				throw new UsernameNotFoundException("User not found.");
+			if (userInfoOnDB.getTokenActiveAfter().before(userInfoInToken.getTokenActiveAfter())) {
+				List<String> roleNames = this.appRoleRepository.getRoleNames(userInfoOnDB.getUserId());
+				List<GrantedAuthority> grantList = new ArrayList<>();
+				if (roleNames != null) {
+					for (String role : roleNames) {
+						GrantedAuthority authority = new SimpleGrantedAuthority(role);
+						grantList.add(authority);
+					}
+				}
+				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userInfoInToken.getUserName(), null,
+						grantList);
+				accessor.setUser(authentication);
+			}
+		}
+		return message;
+	}
 }
