@@ -47,7 +47,7 @@ public class AppUser implements Serializable {
 	}
 
 
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name="token_active_after")
 	public Date getTokenActiveAfter() {
 		return this.tokenActiveAfter;
