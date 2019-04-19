@@ -1,7 +1,8 @@
 package com.github.duc010298.sync_file_web_api.filter;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -11,20 +12,26 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.filter.GenericFilterBean;
 
 import com.github.duc010298.sync_file_web_api.entity.AppUser;
+import com.github.duc010298.sync_file_web_api.repository.AppRoleRepository;
 import com.github.duc010298.sync_file_web_api.repository.AppUserRepository;
 import com.github.duc010298.sync_file_web_api.services.TokenAuthenticationService;
 
 public class JWTAuthenticationFilter extends GenericFilterBean {
 	
 	private final AppUserRepository appUserRepository;
+	private final AppRoleRepository appRoleRepository;
 	
-	public JWTAuthenticationFilter(AppUserRepository appUserRepository) 
+	public JWTAuthenticationFilter(AppUserRepository appUserRepository, AppRoleRepository appRoleRepository) 
     {
         this.appUserRepository = appUserRepository;
+        this.appRoleRepository = appRoleRepository;
     }
 
 	@Override
@@ -34,12 +41,21 @@ public class JWTAuthenticationFilter extends GenericFilterBean {
 		
 		AppUser userInfoInToken = TokenAuthenticationService.getUserInfoFromToken((HttpServletRequest) request);
 		AppUser userInfoOnDB = appUserRepository.findByUserName(userInfoInToken.getUserName());
-        
-        if(userInfoOnDB != null) {
-        	if(userInfoOnDB.getTokenActiveAfter().before(userInfoInToken.getTokenActiveAfter())) {
-        		authentication = new UsernamePasswordAuthenticationToken(userInfoInToken.getUserName(), null, Collections.emptyList());
-        	}
-        }
+		
+		if (userInfoOnDB == null)
+			throw new UsernameNotFoundException("User not found.");
+			
+    	if(userInfoOnDB.getTokenActiveAfter().before(userInfoInToken.getTokenActiveAfter())) {
+    		List<String> roleNames = this.appRoleRepository.getRoleNames(userInfoOnDB.getUserId());
+    		List<GrantedAuthority> grantList = new ArrayList<>();
+    		if (roleNames != null) {
+    			for (String role : roleNames) {
+    				GrantedAuthority authority = new SimpleGrantedAuthority(role);
+    				grantList.add(authority);
+    			}
+    		}
+    		authentication = new UsernamePasswordAuthenticationToken(userInfoInToken.getUserName(), null, grantList);
+    	}
 		
         SecurityContextHolder.getContext().setAuthentication(authentication);
         chain.doFilter(request, response);

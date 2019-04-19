@@ -2,6 +2,7 @@ package com.github.duc010298.sync_file_web_api.config;
 
 import com.github.duc010298.sync_file_web_api.filter.JWTAuthenticationFilter;
 import com.github.duc010298.sync_file_web_api.filter.JWTLoginFilter;
+import com.github.duc010298.sync_file_web_api.repository.AppRoleRepository;
 import com.github.duc010298.sync_file_web_api.repository.AppUserRepository;
 import com.github.duc010298.sync_file_web_api.services.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +23,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private UserDetailsServiceImpl userDetailsService;
     private AppUserRepository appUserRepository;
+    private AppRoleRepository appRoleRepository;
 
     @Autowired
-    public WebSecurityConfig(UserDetailsServiceImpl userDetailsService, AppUserRepository appUserRepository) {
+    public WebSecurityConfig(UserDetailsServiceImpl userDetailsService, AppUserRepository appUserRepository, AppRoleRepository appRoleRepository) {
         this.userDetailsService = userDetailsService;
         this.appUserRepository = appUserRepository;
+        this.appRoleRepository = appRoleRepository;
     }
 
     @Bean
@@ -47,9 +50,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/").permitAll()
                 .antMatchers(HttpMethod.POST, "/login").permitAll()
+                .antMatchers("/TestToken").hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()
-                .addFilterBefore(new JWTLoginFilter("/login", authenticationManager()), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new JWTAuthenticationFilter(appUserRepository), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JWTLoginFilter("/login", authenticationManager(), appUserRepository, appRoleRepository), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JWTAuthenticationFilter(appUserRepository, appRoleRepository), UsernamePasswordAuthenticationFilter.class);
     }
 }

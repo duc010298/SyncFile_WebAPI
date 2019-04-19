@@ -46,8 +46,9 @@ namespace Sync_File_Client_Windows
                     return;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex);
                 MessageBox.Show("Failed to send request, check your connection and try again", "Take an error!", MessageBoxButtons.OK, MessageBoxIcon.Hand);
                 return;
             }
