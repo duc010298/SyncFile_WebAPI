@@ -2,7 +2,6 @@ package com.github.duc010298.sync_file_web_api.filter;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Date;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
