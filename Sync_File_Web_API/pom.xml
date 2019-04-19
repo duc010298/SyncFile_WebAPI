@@ -10,9 +10,9 @@
 	</parent>
 	<groupId>com.github.duc010298</groupId>
 	<artifactId>sync_file_web_api</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>Sync_File_Web_API</name>
-	<description>Sync File Web API</description>
+	<version>0.0.2-SNAPSHOT</version>
+	<name>sync_file_web_api</name>
+	<description>sync_file_web_api</description>
 
 	<properties>
 		<java.version>1.8</java.version>
@@ -35,6 +35,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-websocket</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>org.postgresql</groupId>
@@ -51,12 +55,6 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt -->
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt</artifactId>
-            <version>0.9.0</version>
-        </dependency>
 	</dependencies>
 
 	<build>
