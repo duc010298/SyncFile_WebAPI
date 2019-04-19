@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 
@@ -50,6 +51,10 @@ namespace Sync_File_Client_Windows
                 MessageBox.Show("Failed to send request, check your connection and try again", "Take an error!", MessageBoxButtons.OK, MessageBoxIcon.Hand);
                 return;
             }
+            //Console.WriteLine(token);
+            Config.Client.DefaultRequestHeaders.Clear();
+            Config.Client.DefaultRequestHeaders.Accept.Clear();
+            Config.Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             Config.Client.DefaultRequestHeaders.Add("Authorization", token);
             CreateAuthenticationInfoFile(token);
             //Start program here
