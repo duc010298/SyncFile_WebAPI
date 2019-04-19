@@ -15,7 +15,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -43,8 +42,7 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
         String password = request.getParameter("password");
         
         AppUser appUserEntity = appUserRepository.findByUserName(username);
-		if (appUserEntity == null)
-			throw new UsernameNotFoundException("User not found.");
+		if (appUserEntity == null) return null;
         List<String> roleNames = this.appRoleRepository.getRoleNames(appUserEntity.getUserId());
 
 		List<GrantedAuthority> grantList = new ArrayList<>();
